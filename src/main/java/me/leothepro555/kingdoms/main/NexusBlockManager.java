@@ -197,6 +197,24 @@ public class NexusBlockManager implements Listener{
 								p.sendMessage(ChatColor.RED + "Only kingdom kings and mods can buy turrets");
 								p.closeInventory();
 								}
+						}else if(event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.AQUA + "Survivability")){
+							if(plugin.isMod(plugin.getKingdom(p), p) ||
+									plugin.isKing(p)){
+							event.setCancelled(true);
+							openSurvivabilityShop(p);
+							}else{
+								p.sendMessage(ChatColor.RED + "Only kingdom kings and mods can upgrade bonuses");
+								p.closeInventory();
+								}
+						}else if(event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.AQUA + "Structures")){
+							if(plugin.isMod(plugin.getKingdom(p), p) ||
+									plugin.isKing(p)){
+							event.setCancelled(true);
+							openStructureShop(p);
+							}else{
+								p.sendMessage(ChatColor.RED + "Only kingdom kings and mods can upgrade bonuses");
+								p.closeInventory();
+								}
 						}
 					}
 				}
@@ -393,7 +411,7 @@ public class NexusBlockManager implements Listener{
 					ArrayList<String> i1l = new ArrayList<String>();
 					i1l.add(ChatColor.GREEN + "Rapidly fires at anything other than");
 					i1l.add(ChatColor.GREEN + "kingdom members. One target at a time.");
-					i1l.add(ChatColor.BLUE + "Range: 7 blocks");
+					i1l.add(ChatColor.BLUE + "Range: 5 blocks");
 					i1l.add(ChatColor.BLUE + "Damage: 4 hearts/shot");
 					i1l.add(ChatColor.BLUE + "Attack Speed: 1/sec");
 					i1l.add(ChatColor.BLUE + "Targets: One random target in range");
@@ -415,9 +433,9 @@ public class NexusBlockManager implements Listener{
 					return;
 				}
 
-				if(plugin.rpm.hasAmtRp(plugin.getKingdom(p), 100)){
+				if(plugin.rpm.hasAmtRp(plugin.getKingdom(p), 150)){
 					p.sendMessage(ChatColor.GREEN + "Right click while holding " + ChatColor.AQUA + "Flame Turret " + ChatColor.GREEN + "to place it");
-					plugin.rpm.minusRP(plugin.getKingdom(p), 100);
+					plugin.rpm.minusRP(plugin.getKingdom(p), 150);
 					
 					ItemStack i1 = new ItemStack(Material.RECORD_9);
 					ItemMeta i1m = i1.getItemMeta();
@@ -426,12 +444,45 @@ public class NexusBlockManager implements Listener{
 					i1l.add(ChatColor.GREEN + "Fast-firing turret that sets targets on");
 					i1l.add(ChatColor.GREEN + "fire");
 					i1l.add(ChatColor.GREEN + "Works best on a flat space");
-					i1l.add(ChatColor.BLUE + "Range: 7 blocks");
-					i1l.add(ChatColor.BLUE + "Damage: 4 hearts/shot");
+					i1l.add(ChatColor.BLUE + "Range: 5 blocks");
+					i1l.add(ChatColor.BLUE + "Damage: 2 hearts/shot");
 					i1l.add(ChatColor.BLUE + "Attack Speed: 2/sec");
 					i1l.add(ChatColor.BLUE + "Targets: One random target in range");
 					i1m.setLore(i1l);
 					i1.setItemMeta(i1m);
+						
+				p.getInventory().addItem(i1);
+				p.updateInventory();
+					
+				}else{
+					p.sendMessage(ChatColor.RED + "You don't have enough resource points for this turret!");
+				}
+				
+			
+			}else if(item.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "Pressure Mine")){
+				if(p.getInventory().firstEmpty() == -1){
+					p.sendMessage(ChatColor.RED + "Cannot craft with full inventory!");
+					return;
+				}
+
+				if(plugin.rpm.hasAmtRp(plugin.getKingdom(p), 10)){
+					p.sendMessage(ChatColor.GREEN + "Right click on a floor while holding " + ChatColor.AQUA + "Pressure Mine " + ChatColor.GREEN + "to place it");
+					plugin.rpm.minusRP(plugin.getKingdom(p), 10);
+					
+					ItemStack i1 = new ItemStack(Material.RECORD_9);
+					ItemMeta i1m = i1.getItemMeta();
+					i1m.setDisplayName(ChatColor.AQUA + "Pressure Mine");
+					ArrayList<String> i1l = new ArrayList<String>();
+					i1l.add(ChatColor.GREEN + "A placable pressure plate, when stepped");
+					i1l.add(ChatColor.GREEN + "on by non-allies, will explode, dealing ");
+					i1l.add(ChatColor.GREEN + "damage. Does not damage blocks");
+					i1l.add(ChatColor.BLUE + "Range: 3 blocks");
+					i1l.add(ChatColor.BLUE + "Damage: 4 hearts (Depending on location)");
+					i1l.add(ChatColor.BLUE + "Attack Speed: one use");
+					i1l.add(ChatColor.BLUE + "Targets: All targets in blast range");
+					i1m.setLore(i1l);
+					i1.setItemMeta(i1m);
+					
 					
 				p.getInventory().addItem(i1);
 				p.updateInventory();
@@ -441,6 +492,46 @@ public class NexusBlockManager implements Listener{
 				}
 				
 			
+			}
+		}
+		}
+		}else if(event.getInventory().getName().equals(ChatColor.AQUA + "Structure Shop")){
+			event.setCancelled(true);
+			if(p.getInventory().firstEmpty() == -1){
+				p.sendMessage(ChatColor.RED + "Cannot craft with full inventory!");
+				return;
+			}
+			ItemStack item = event.getCurrentItem();
+			if(item.getItemMeta() != null){
+			if(item.getItemMeta().getLore() != null && item.getItemMeta().getDisplayName() != null){
+			if(item.getItemMeta().getLore().contains(ChatColor.LIGHT_PURPLE + "Placable Structure")){
+			if(item.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "Power Cell")){
+				if(plugin.rpm.hasAmtRp(plugin.getKingdom(p), 50)){
+				p.sendMessage(ChatColor.GREEN + "Right click while holding " + ChatColor.AQUA + "Power Cell " + ChatColor.GREEN + "to place it");
+				plugin.rpm.minusRP(plugin.getKingdom(p), 50);
+				
+				ItemStack i1 = new ItemStack(Material.MAGMA_CREAM);
+				ItemMeta i1m = i1.getItemMeta();
+				i1m.setDisplayName("Power Cell");
+				ArrayList<String> i1l = new ArrayList<String>();
+				i1l.add(ChatColor.GREEN + "Chunks next to the chunk with a power cell");
+				i1l.add(ChatColor.GREEN + "cannot be invaded without invading the power");
+				i1l.add(ChatColor.GREEN + "cell first. Does not work on other power cell land");
+				i1l.add(ChatColor.RED+ "Can't be placed on power cell chunks");
+				i1m.setLore(i1l);
+				i1.setItemMeta(i1m);
+				
+			p.getInventory().addItem(i1);
+			p.updateInventory();
+			}else{
+				p.sendMessage(ChatColor.RED + "You don't have enough resource points for this turret!");
+			}
+				
+			}else if(item.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "Arrow Turret")){
+				
+			}else if(item.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "Flame Turret")){
+				
+			}
 			}
 		}
 		}
@@ -627,6 +718,25 @@ public class NexusBlockManager implements Listener{
 		i8l.add(ChatColor.LIGHT_PURPLE + "turrets with resource points");
 		i8m.setLore(i8l);
 		i8.setItemMeta(i8m);
+        
+		ItemStack i9 = new ItemStack(Material.OBSIDIAN);
+		ItemMeta i9m = i9.getItemMeta();
+		i9m.setDisplayName(ChatColor.AQUA + "Survivability");
+		ArrayList<String> i9l = new ArrayList<String>();
+		i9l.add(ChatColor.LIGHT_PURPLE + "Click to open Survivability shop.");
+		i9l.add(ChatColor.LIGHT_PURPLE + "Contains upgrades to improve the");
+		i9l.add(ChatColor.LIGHT_PURPLE + "survivability of your kingdom");
+		i9m.setLore(i9l);
+		i9.setItemMeta(i9m);
+		
+		ItemStack i10 = new ItemStack(Material.BEACON);
+		ItemMeta i10m = i10.getItemMeta();
+		i10m.setDisplayName(ChatColor.AQUA + "Structures");
+		ArrayList<String> i10l = new ArrayList<String>();
+		i10l.add(ChatColor.LIGHT_PURPLE + "Click to open Structures shop.");
+		i10l.add(ChatColor.LIGHT_PURPLE + "Structures have different functions");
+		i10m.setLore(i10l);
+		i10.setItemMeta(i10m);
 		
 		ItemStack chest = new ItemStack(Material.CHEST);
 		ItemMeta chestm = chest.getItemMeta();
@@ -652,6 +762,7 @@ public class NexusBlockManager implements Listener{
 		nexusgui.setItem(10, i3);
 		nexusgui.setItem(11, i4);
 		nexusgui.setItem(12, i7);
+		nexusgui.setItem(13, i10);
 		nexusgui.setItem(20, i8);
 		nexusgui.setItem(18, i5);
 		nexusgui.setItem(19, i6);
@@ -660,6 +771,115 @@ public class NexusBlockManager implements Listener{
 		nexusgui.setItem(26, chest);
 		
 		p.openInventory(nexusgui);
+	}
+	
+	public void openStructureShop(Player p){
+		champions = Bukkit.createInventory(null, 27, ChatColor.AQUA + "Structure Shop");
+		
+		ItemStack i1 = new ItemStack(Material.MAGMA_CREAM);
+		ItemMeta i1m = i1.getItemMeta();
+		i1m.setDisplayName(ChatColor.AQUA + "Power Cell");
+		ArrayList<String> i1l = new ArrayList<String>();
+		i1l.add(ChatColor.GREEN + "Chunks next to the chunk with a power cell");
+		i1l.add(ChatColor.GREEN + "cannot be invaded without invading the power");
+		i1l.add(ChatColor.GREEN + "cell first. Does not work on other power cell land");
+		i1l.add(ChatColor.RED+ "Cost: 50 resource points");
+		i1l.add(ChatColor.RED+ "Can't be placed on power cell chunks");
+		i1l.add(ChatColor.LIGHT_PURPLE + "Placable Structure");
+		i1m.setLore(i1l);
+		i1.setItemMeta(i1m);
+		
+		ItemStack i2 = new ItemStack(Material.WHEAT);
+		ItemMeta i2m = i2.getItemMeta();
+		i2m.setDisplayName(ChatColor.AQUA + "Mystic Harvester");
+		ArrayList<String> i2l = new ArrayList<String>();
+		i2l.add(ChatColor.GREEN + "A block that creates resource points");
+		i2l.add(ChatColor.GREEN + "from nearby growing wheat. Stops functioning");
+		i2l.add(ChatColor.GREEN + "when the wheat nearby is fully grown.");
+		i2l.add(ChatColor.GREEN + "Only wheat around it in a one block");
+		i2l.add(ChatColor.GREEN + "radius will allow resource point harvesting");
+		i2l.add(ChatColor.RED+ "Cost: 50 resource points");
+		i2l.add(ChatColor.RED+ "Must be placed on nexus chunks");
+		i2l.add(ChatColor.LIGHT_PURPLE + "Placable Structure");
+		i2m.setLore(i2l);
+		i2.setItemMeta(i2m);
+		
+		ItemStack r = new ItemStack(Material.HAY_BLOCK);
+		ItemMeta rm = r.getItemMeta();
+		rm.setDisplayName(ChatColor.AQUA + "Resource Points");
+		ArrayList<String> rl = new ArrayList<String>();
+		rl.add(ChatColor.GREEN + "Your kingdom currently has");
+		rl.add(ChatColor.DARK_AQUA + "" + plugin.rpm.getRp(plugin.getKingdom(p)) + ChatColor.GREEN + " Resource Points");
+		rm.setLore(rl);
+		r.setItemMeta(rm);
+		
+		ItemStack backbtn = new ItemStack(Material.REDSTONE_BLOCK);
+		ItemMeta backbtnmeta = backbtn.getItemMeta();
+		backbtnmeta.setDisplayName(ChatColor.RED + "Return to main menu");
+		backbtn.setItemMeta(backbtnmeta);
+		champions.setItem(17, r);
+		champions.setItem(26, backbtn);
+		
+		champions.addItem(i1);
+		p.openInventory(champions);
+	}
+	
+	public void openSurvivabilityShop(Player p){
+		champions = Bukkit.createInventory(null, 27, ChatColor.AQUA + "Survivability Shop");
+		
+		ItemStack i1 = new ItemStack(Material.BED);
+		ItemMeta i1m = i1.getItemMeta();
+		i1m.setDisplayName(ChatColor.AQUA + "Belonging");
+		ArrayList<String> i1l = new ArrayList<String>();
+		i1l.add(ChatColor.GREEN + "Be able to use your kingdom home, even if");
+		i1l.add(ChatColor.GREEN + "your home's land is no longer your land.");
+		i1l.add(ChatColor.RED + "Cost: 100 resource points");
+		i1l.add(ChatColor.LIGHT_PURPLE + "Survivability Upgrade");
+		i1m.setLore(i1l);
+		i1.setItemMeta(i1m);
+		
+		ItemStack i2 = new ItemStack(Material.MAGMA_CREAM);
+		ItemMeta i2m = i2.getItemMeta();
+		i2m.setDisplayName(ChatColor.AQUA + "Nexus Tower");
+		ArrayList<String> i2l = new ArrayList<String>();
+		i2l.add(ChatColor.GREEN + "Converts the nexus into a powerful");
+		i2l.add(ChatColor.GREEN + "area turret. Strikes nearby targets");
+		i2l.add(ChatColor.GREEN + "with the power of lightning");
+		i2l.add(ChatColor.RED+ "Cost: 100 resource points");
+		i2l.add(ChatColor.LIGHT_PURPLE + "Survivability Upgrade");
+		i2m.setLore(i2l);
+		i2.setItemMeta(i2m);
+		
+		ItemStack i3 = new ItemStack(Material.EYE_OF_ENDER);
+		ItemMeta i3m = i3.getItemMeta();
+		i3m.setDisplayName(ChatColor.AQUA + "Detector");
+		ArrayList<String> i3l = new ArrayList<String>();
+		i3l.add(ChatColor.GREEN + "Invisibility users in the nexus");
+		i3l.add(ChatColor.GREEN + "chunk will have their invisibility");
+		i3l.add(ChatColor.GREEN + "removed.");
+		i3l.add(ChatColor.RED + "Cost: 100 resource points");
+		i3l.add(ChatColor.LIGHT_PURPLE + "Survivability Upgrade");
+		i3m.setLore(i3l);
+		i3.setItemMeta(i3m);
+		
+		ItemStack r = new ItemStack(Material.HAY_BLOCK);
+		ItemMeta rm = r.getItemMeta();
+		rm.setDisplayName(ChatColor.AQUA + "Resource Points");
+		ArrayList<String> rl = new ArrayList<String>();
+		rl.add(ChatColor.GREEN + "Your kingdom currently has");
+		rl.add(ChatColor.DARK_AQUA + "" + plugin.rpm.getRp(plugin.getKingdom(p)) + ChatColor.GREEN + " Resource Points");
+		rm.setLore(rl);
+		r.setItemMeta(rm);
+		
+		ItemStack backbtn = new ItemStack(Material.REDSTONE_BLOCK);
+		ItemMeta backbtnmeta = backbtn.getItemMeta();
+		backbtnmeta.setDisplayName(ChatColor.RED + "Return to main menu");
+		backbtn.setItemMeta(backbtnmeta);
+		
+		champions.addItem(i1);
+		champions.setItem(15, r);
+		champions.setItem(26, backbtn);
+		p.openInventory(champions);
 	}
 	
 	public void openTurretShop(Player p){
@@ -671,7 +891,7 @@ public class NexusBlockManager implements Listener{
 		ArrayList<String> i1l = new ArrayList<String>();
 		i1l.add(ChatColor.GREEN + "Rapidly fires at anything other than");
 		i1l.add(ChatColor.GREEN + "kingdom members. One target at a time.");
-		i1l.add(ChatColor.BLUE + "Range: 7 blocks");
+		i1l.add(ChatColor.BLUE + "Range: 5 blocks");
 		i1l.add(ChatColor.BLUE + "Damage: 4 hearts/shot");
 		i1l.add(ChatColor.BLUE + "Attack Speed: 1/sec");
 		i1l.add(ChatColor.BLUE + "Targets: One random target in range");
@@ -688,7 +908,7 @@ public class NexusBlockManager implements Listener{
 		i2l.add(ChatColor.GREEN + "power of lightning");
 		i2l.add(ChatColor.RED+ "Can only be placed in the nexus chunk");
 		i2l.add(ChatColor.BLUE + "Range: 5 blocks");
-		i2l.add(ChatColor.BLUE + "Damage: 3 hearts/shot");
+		i2l.add(ChatColor.BLUE + "Damage: 2 hearts/shot");
 		i2l.add(ChatColor.BLUE + "Attack Speed: 1/sec");
 		i2l.add(ChatColor.BLUE + "Targets: All targets in range");
 		i2l.add(ChatColor.RED + "Cost: 300 resource points");
@@ -703,16 +923,34 @@ public class NexusBlockManager implements Listener{
 		i3l.add(ChatColor.GREEN + "Fast-firing turret that sets targets on");
 		i3l.add(ChatColor.GREEN + "fire");
 		i3l.add(ChatColor.GREEN + "Works best on a flat space");
-		i3l.add(ChatColor.BLUE + "Range: 7 blocks");
-		i3l.add(ChatColor.BLUE + "Damage: 4 hearts/shot");
+		i3l.add(ChatColor.BLUE + "Range: 5 blocks");
+		i3l.add(ChatColor.BLUE + "Damage: 2 hearts/shot");
 		i3l.add(ChatColor.BLUE + "Attack Speed: 2/sec");
 		i3l.add(ChatColor.BLUE + "Targets: One random target in range");
-		i3l.add(ChatColor.RED + "Cost: 100 resource points");
+		i3l.add(ChatColor.RED + "Cost: 150 resource points");
 		i3l.add(ChatColor.LIGHT_PURPLE + "Turret");
 		i3m.setLore(i3l);
 		i3.setItemMeta(i3m);
 		
+		ItemStack i4 = new ItemStack(Material.TNT);
+		ItemMeta i4m = i4.getItemMeta();
+		i4m.setDisplayName(ChatColor.AQUA + "Pressure Mine");
+		ArrayList<String> i4l = new ArrayList<String>();
+		i4l.add(ChatColor.GREEN + "A placable pressure plate, when stepped");
+		i4l.add(ChatColor.GREEN + "on by non-allies, will explode, dealing ");
+		i4l.add(ChatColor.GREEN + "damage. Does not damage blocks");
+		i4l.add(ChatColor.BLUE + "Range: 3 blocks");
+		i4l.add(ChatColor.BLUE + "Damage: 4 hearts");
+		i4l.add(ChatColor.BLUE + "Attack Speed: one use");
+		i4l.add(ChatColor.BLUE + "Targets: All targets in blast range");
+		i4l.add(ChatColor.RED + "Cost: 10 resource points");
+		i4l.add(ChatColor.LIGHT_PURPLE + "Turret");
+		i4m.setLore(i4l);
+		i4.setItemMeta(i4m);
+		
 		champions.addItem(i1);
+		champions.addItem(i3);
+		champions.addItem(i4);
 		p.openInventory(champions);
 	}
 	

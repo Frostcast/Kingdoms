@@ -3,9 +3,15 @@ package me.leothepro555.kingdoms.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import me.leothepro555.kingdoms.commands.CommandAdminDisband;
@@ -25,6 +31,7 @@ import me.leothepro555.kingdoms.commands.CommandCreate;
 import me.leothepro555.kingdoms.commands.CommandDefend;
 import me.leothepro555.kingdoms.commands.CommandDemote;
 import me.leothepro555.kingdoms.commands.CommandDisband;
+import me.leothepro555.kingdoms.commands.CommandDonate;
 import me.leothepro555.kingdoms.commands.CommandEnemy;
 import me.leothepro555.kingdoms.commands.CommandHelp;
 import me.leothepro555.kingdoms.commands.CommandHome;
@@ -41,6 +48,7 @@ import me.leothepro555.kingdoms.commands.CommandNeutral;
 import me.leothepro555.kingdoms.commands.CommandNexus;
 import me.leothepro555.kingdoms.commands.CommandSethome;
 import me.leothepro555.kingdoms.commands.CommandShow;
+import me.leothepro555.kingdoms.commands.CommandTop;
 import me.leothepro555.kingdoms.commands.CommandTradable;
 import me.leothepro555.kingdoms.commands.CommandUnInvite;
 import me.leothepro555.kingdoms.commands.CommandUnclaim;
@@ -110,6 +118,7 @@ public class Kingdoms extends JavaPlugin implements Listener{
 		pm.registerEvents(new TurretManager(this), this);
 		pm.registerEvents(new TechnicalMethods(this), this);
 		pm.registerEvents(new ChampionManager(this), this);
+		pm.registerEvents(new StructureManager(this), this);
 		getConfig().options().copyDefaults(true);
 		saveDefaultConfig();
 		this.kingdoms.options().copyDefaults(false);
@@ -126,92 +135,21 @@ public class Kingdoms extends JavaPlugin implements Listener{
 		saveChests();
 		this.turrets.options().copyDefaults(false);
 		saveTurrets();
+		this.structures.options().copyDefaults(false);
+		saveStructures();
 		
 		for(String location:turrets.getKeys(false)){
 			final Block turret = TechnicalMethods.stringToLocation(location).getBlock();
 			final BlockState skulltype = turret.getState();
 			if(skulltype instanceof Skull){
 				if(((Skull) skulltype).getSkullType().equals(SkullType.SKELETON)){
-			 new BukkitRunnable(){
-				 @Override
-			  public void run(){
-					 if(turrets.getString(TechnicalMethods.locationToStringTurret(turret.getLocation())) != null){
-					for(Entity e:getNearbyEntities(turret.getLocation(), 7)){
-						Location origin = turret.getRelative(0, 1, 0).getLocation();
-							if(e instanceof LivingEntity){
-								if(e instanceof Player){
-									if(((Player) e).getGameMode() == GameMode.SURVIVAL||
-											((Player) e).getGameMode() == GameMode.ADVENTURE){
-									if(!turrets.getString(TechnicalMethods.locationToStringTurret(turret.getLocation())).equals(getKingdom((Player)e))){
-										TechnicalMethods.fireArrow(origin, e);
-										break;
-									}
-								}
-								}else if(e instanceof Wolf){
-									if(((Wolf) e).isTamed()){
-										OfflinePlayer owner = (OfflinePlayer) ((Wolf) e).getOwner();
-										if(!turrets.getString(TechnicalMethods.locationToStringTurret(turret.getLocation())).equals(getKingdom(owner))){
-											TechnicalMethods.fireArrow(origin, e);
-											break;
-										}
-									}else{
-										TechnicalMethods.fireArrow(origin, e);
-										break;
-									}
-								}else if(!champions.containsKey(e.getUniqueId())){
-									TechnicalMethods.fireArrow(origin, e);
-									break;
-								}
-							}
-						}
-				 }else{
-					 this.cancel();
-				 }
-					 
-			   }
-			    
-			   }.runTaskTimer(this, 0L, 20L);
-			}else if(((Skull) skulltype).getSkullType().equals(SkullType.WITHER)){				        			 
-				new BukkitRunnable(){
-				 @Override
-			  public void run(){
-					 if(plugin.turrets.getString(TechnicalMethods.locationToStringTurret(turret.getLocation())) != null){
-					for(Entity e:getNearbyEntities(turret.getLocation(), 7)){
-						Location origin = turret.getRelative(0, 1, 0).getLocation();
-							if(e instanceof LivingEntity){
-								if(e instanceof Player){
-									if(((Player) e).getGameMode() == GameMode.SURVIVAL||
-											((Player) e).getGameMode() == GameMode.ADVENTURE){
-									if(!plugin.turrets.getString(TechnicalMethods.locationToStringTurret(turret.getLocation())).equals(plugin.getKingdom((Player)e)) &&
-											!plugin.isAlly((plugin.turrets.getString(TechnicalMethods.locationToStringTurret(turret.getLocation()))), ((Player) e))){
-										TechnicalMethods.fireFireball(origin, e, plugin);
-										break;
-									}
-									}
-								}else if(e instanceof Wolf){
-									if(((Wolf) e).isTamed()){
-										Player owner = (Player) ((Wolf) e).getOwner();
-										if(!plugin.turrets.getString(TechnicalMethods.locationToStringTurret(turret.getLocation())).equals(plugin.getKingdom(owner))){
-											TechnicalMethods.fireFireball(origin, e, plugin);
-											break;
-										}
-									}else{
-										TechnicalMethods.fireFireball(origin, e, plugin);
-										break;
-									}
-								}else if(!plugin.champions.containsKey(e.getUniqueId())){
-									TechnicalMethods.fireFireball(origin, e, plugin);
-									break;
-								}
-							}
-						}
-				 }else{
-					 this.cancel();
-				 }
-					 
-			   }
-			    
-			   }.runTaskTimer(plugin, 0L, 10L);}
+					TurretManager.startArrowTurret(turret, this);
+					
+			}else if(((Skull) skulltype).getSkullType().equals(SkullType.WITHER)){
+				
+				TurretManager.startFireArrowTurret(turret, this);
+				
+			}
 		}
 					}
 		
@@ -405,7 +343,7 @@ public class Kingdoms extends JavaPlugin implements Listener{
 			}
 	     	}else if(args[0].equalsIgnoreCase("info")){
 	     		
-	     		CommandInfo.runCommand(p);
+	     		CommandInfo.runCommand(p, args, this);
 	     		
 	     	}else if(args[0].equalsIgnoreCase("tradable")){
 	     		
@@ -508,6 +446,15 @@ public class Kingdoms extends JavaPlugin implements Listener{
 	     		
 	     		CommandDefend.runCommand(p, plugin);
 	     		
+	     	}else if(args[0].equalsIgnoreCase("top")){
+	     		
+	     		CommandTop.runCommand(p, plugin);
+	     		
+	     	}else if(args[0].equalsIgnoreCase("donate")||
+	     			args[0].equalsIgnoreCase("transfer")){
+	     		
+	     		CommandDonate.runCommand(p, plugin, args);
+	     		
 	     	}else{
 				p.sendMessage(ChatColor.RED + "[Kingdoms] Unknown command. Do /k for commands.");
 			}
@@ -572,11 +519,17 @@ public class Kingdoms extends JavaPlugin implements Listener{
 	
 	
 	@EventHandler
-	public void onPlayerRightclick(PlayerInteractEvent event){
+	public void onNexusPlace(PlayerInteractEvent event){
 		Player p = event.getPlayer();
 		if(this.placingnexusblock.contains(p.getUniqueId())){
+			
 			if(event.getAction() == Action.RIGHT_CLICK_BLOCK){
 				Location loc = event.getClickedBlock().getLocation();
+				if(plugin.turrets.getKeys(false).contains(TechnicalMethods.locationToStringTurret(loc))){
+					p.sendMessage(ChatColor.RED + "You can't replace turrets with your nexus!");
+					placingnexusblock.remove(p.getUniqueId());
+					return;
+				}
 				try{
 				if(hasWorldGuard){
 					if(wet.isInRegion(event.getClickedBlock().getLocation())){
@@ -929,7 +882,9 @@ public class Kingdoms extends JavaPlugin implements Listener{
 					blocks.add(b);
 				}
 			}else if(turrets.getString(TechnicalMethods.locationToStringTurret(b.getLocation())) != null){
+				if(!blocks.contains(b)){
 				blocks.add(b);
+				}
 			}
 		}
 		
@@ -1598,6 +1553,10 @@ public class Kingdoms extends JavaPlugin implements Listener{
 				if(isNexusChunk(c)){
 					boo = true;
 				}
+			if(StructureManager.isProtected(c, this)){
+				p.sendMessage(ChatColor.RED + "You must invade surrounding power core chunks before invading this chunk!");
+			    return;
+			}
 			p.sendMessage(ChatColor.GREEN + "Invading land! " + getChunkKingdom(c) + " is summoning their champion to defend their land!");
 			p.sendMessage(ChatColor.RED + "Defeat their champion to gain their land!");
 			p.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "BATTLE!");
@@ -1754,6 +1713,7 @@ public class Kingdoms extends JavaPlugin implements Listener{
 	
 	public void unclaimCurrentPosition(Player p){
 		Chunk c = p.getLocation().getChunk();
+		if(getChunkKingdom(c) != null){
 		if(getChunkKingdom(c).equals(getKingdom(p))){
 			land.set(chunkToString(c), null);
 			saveClaimedLand();
@@ -1763,11 +1723,12 @@ public class Kingdoms extends JavaPlugin implements Listener{
 			rpm.addRP(getKingdom(p), 5);
 			kingdoms.set(getKingdom(p) + ".land", kingdoms.getInt(getKingdom(p) + ".land") - 1);
 			saveKingdoms();
-		}else if(this.land.getString(chunkToString(c)) == null){
-			p.sendMessage(ChatColor.AQUA + "You can't unclaim land that you don't occupy.");
 		}else if(!getChunkKingdom(c).equals(getKingdom(p))){
 			p.sendMessage(ChatColor.RED + "This land is owned by " + getChunkKingdom(c) + ". You can't unclaim this land.");
 		}
+	}else{
+		p.sendMessage(ChatColor.AQUA + "You can't unclaim land that you don't occupy.");
+	}
 	}
 	
 	public void emptyCurrentPosition(Chunk c){
@@ -1846,6 +1807,20 @@ public class Kingdoms extends JavaPlugin implements Listener{
 			Bukkit.getLogger().severe(ChatColor.RED + "One of the land claim areas is invalid! Did you change the claimedchunks config recently?");
 		}
 		return c;
+	}
+	
+	public static HashMap<Integer, String> sortHashList(HashMap<Integer, String> map) {
+		
+		Object[] list = map.keySet().toArray();
+		Arrays.sort(list);
+		HashMap<Integer, String> sorted = new HashMap<Integer, String>();
+		for(Object i: list){
+			if(i instanceof Integer){
+			sorted.put((Integer) i, map.get((Integer) i));
+		}
+		}
+		
+		return sorted;
 	}
 	
 	public boolean hasMisUpgrade(String kingdom, String upgrade){
@@ -1961,6 +1936,18 @@ public class Kingdoms extends JavaPlugin implements Listener{
 		    try {
 		      this.chest.save(this.chestfile);
 		      this.chest = YamlConfiguration.loadConfiguration(this.chestfile);
+		    } catch (IOException e) {
+		      e.printStackTrace();
+		    }
+		  }
+	  
+	  public File structuresfile = new File("plugins/Kingdoms/structures.yml");
+	  public FileConfiguration structures = YamlConfiguration.loadConfiguration(this.structuresfile);
+	  
+	  public void saveStructures() {
+		    try {
+		      this.structures.save(this.structuresfile);
+		      this.structures = YamlConfiguration.loadConfiguration(this.structuresfile);
 		    } catch (IOException e) {
 		      e.printStackTrace();
 		    }

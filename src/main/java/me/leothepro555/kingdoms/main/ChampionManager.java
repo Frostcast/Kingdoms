@@ -119,13 +119,14 @@ public class ChampionManager implements Listener{
 			if(plugin.duelpairs.containsKey(event.getEntity().getUniqueId())){
 				if(p.getGameMode() == GameMode.CREATIVE && !p.hasPermission("plugin.kingdoms.admin")){
 					p.sendMessage(ChatColor.RED + "You can't hit champions in creative!");
+					event.setCancelled(true);
 					return;
 				}
 				if(!plugin.duelpairs.containsValue(event.getDamager().getUniqueId())){
 					if(plugin.kingdoms.getInt(getChampionKingdom(event.getEntity()) + ".champion.duel") > 0){
 					event.setCancelled(true);
 					((Player) event.getDamager()).sendMessage(ChatColor.RED + "You can't damage the champion unless you're the invader!");
-				}
+				    }
 				}
 			}
 		}
@@ -320,7 +321,9 @@ public class ChampionManager implements Listener{
 			if(plugin.hasKingdom(p) &&
 					!plugin.getKingdom(p).equals(plugin.getChunkKingdom(plugin.champions.get(event.getEntity().getUniqueId())))){
 				String kingdom = plugin.getChunkKingdom(plugin.champions.get(event.getEntity().getUniqueId()));
-			 if(plugin.isNexusChunk(plugin.champions.get(event.getEntity().getUniqueId()))){
+			 
+				
+				if(plugin.isNexusChunk(plugin.champions.get(event.getEntity().getUniqueId()))){
 				 for(Object obj : plugin.chest.getList(kingdom)){
 						if(obj instanceof ItemStack){
 							event.getEntity().getWorld().dropItemNaturally(event.getEntity().getLocation(),(ItemStack)obj);
@@ -338,7 +341,12 @@ public class ChampionManager implements Listener{
 				 p.sendMessage(ChatColor.GREEN + "Your kingdom has gained " + gained + " resource points!");
 			     
 			 }
+				if(StructureManager.isPowerCoreChunk(plugin.champions.get(event.getEntity().getUniqueId()), plugin)){
+					 StructureManager.removePowerCore(plugin.champions.get(event.getEntity().getUniqueId()), plugin);
+					 p.sendMessage(ChatColor.GREEN + "The power core in this chunk was destroyed!");	 
+				}
 			 plugin.forceClaimCurrentPosition(plugin.champions.get(event.getEntity().getUniqueId()), p);
+			 
 			 p.sendMessage(ChatColor.GREEN + "Invasion Successful.");
 				
 				plugin.duelpairs.remove(event.getEntity().getUniqueId());

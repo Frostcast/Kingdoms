@@ -31,6 +31,7 @@ public class CommandHelp {
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "/k enemy [kingdom] " + ChatColor.AQUA + "Marks another kingdom as an enemy");
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "/k neutral [kingdom] " + ChatColor.AQUA + "Marks another kingdom as neutral");
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "/k disband " + ChatColor.AQUA + "Disbands your kingdom.");
+		p.sendMessage(ChatColor.LIGHT_PURPLE + "/k donate [kingdom] [amount] " + ChatColor.AQUA + "Donates an amount to another kingdom");
 		
 		if(p.hasPermission("kingdoms.map")){
 			p.sendMessage(ChatColor.LIGHT_PURPLE + "/k map " + ChatColor.AQUA + "Shows a map, showing the land surrounding you.");
