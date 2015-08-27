@@ -153,7 +153,7 @@ public class PlayerListener implements Listener{
 	public void onPlayerSendMessage(AsyncPlayerChatEvent event){
 		if(plugin.isValidWorld(event.getPlayer().getWorld())){
 			if(plugin.hasKingdom(event.getPlayer())){
-				String format = "[" + plugin.getKingdom(event.getPlayer()) + "] " + event.getFormat();
+				String format = "§6[§&" + plugin.getKingdom(event.getPlayer()) + "§6]§f " + event.getFormat();
 				event.setFormat(format);
 			}
 		}
